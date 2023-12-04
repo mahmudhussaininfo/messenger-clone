@@ -1,6 +1,6 @@
-import Home from "../pages/Home/Home";
-import Login from "../pages/Login/Login";
-import Register from "../pages/Register/Register";
+import Home from "../pages/Auth/Home/Home";
+import Login from "../pages/Auth/Login/Login";
+import Register from "../pages/Auth/Register/Register";
 
 // create public router
 const publicRouter = [

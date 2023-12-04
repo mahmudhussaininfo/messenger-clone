@@ -1,0 +1,39 @@
+.auth-container {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  .auth-wrapper {
+    width: 700px;
+    height: 70vh;
+    border: 2px solid #ddd;
+    padding: 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    .auth-top {
+      text-align: center;
+      img {
+        width: 60px;
+        height: auto;
+      }
+    }
+
+    .auth-bottom {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      align-items: center;
+      text-align: center;
+
+      a {
+        width: 400px;
+        background-color: #ddd;
+        padding: 10px;
+        border-radius: 8px;
+      }
+    }
+  }
+}

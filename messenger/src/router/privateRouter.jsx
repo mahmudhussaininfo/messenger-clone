@@ -1,4 +1,4 @@
-import Home from "../pages/Home/Home";
+import Home from "../pages/Auth/Home/Home";
 
 // create Private router
 const privateRouter = [
