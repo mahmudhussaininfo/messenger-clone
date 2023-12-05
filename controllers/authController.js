@@ -2,6 +2,7 @@ import asyncHandler from "express-async-handler";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
+import { isValidEmail, isValidPhoneNumber } from "../helpers/helpers.js";
 
 /**
  * @DESC User Login
@@ -80,18 +81,30 @@ export const logout = asyncHandler(async (req, res) => {
  * @access public
  */
 export const register = asyncHandler(async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, auth, password } = req.body;
 
-  if (!name || !email || !password) {
+  if (!name || !auth || !password) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
-  // check user email
-  const userEmailCheck = await User.findOne({ email });
+  let authEmail = null;
+  let authPhone = null;
 
-  if (userEmailCheck) {
-    return res.status(400).json({ message: "Email already exists" });
+  if (isValidEmail(auth)) {
+    authEmail = auth;
+  } else if (isValidPhoneNumber(auth)) {
+    authPhone = auth;
+  } else {
+    return res
+      .status(400)
+      .json({ message: "Please input your valid email or phone" });
   }
+  // check user email
+  // const userEmailCheck = await User.findOne({ email });
+
+  // if (userEmailCheck) {
+  //   return res.status(400).json({ message: "Email already exists" });
+  // }
 
   // password hash
   const hashPass = await bcrypt.hash(password, 10);
@@ -99,7 +112,8 @@ export const register = asyncHandler(async (req, res) => {
   // create new user
   const user = await User.create({
     name,
-    email,
+    email: authEmail,
+    phone: authPhone,
     password: hashPass,
   });
 

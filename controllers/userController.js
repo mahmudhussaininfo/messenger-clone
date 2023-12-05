@@ -41,7 +41,7 @@ export const getSingleUser = asyncHandler(async (req, res) => {
  * @access public
  */
 export const createUser = asyncHandler(async (req, res) => {
-  const { name, email, password, role } = req.body;
+  const { name, email, password } = req.body;
 
   if (!name || !email || !password) {
     return res.status(400).json({ message: "All fields are required" });
@@ -62,7 +62,6 @@ export const createUser = asyncHandler(async (req, res) => {
     name,
     email,
     password: hashPass,
-    role,
   });
 
   // send user access to email

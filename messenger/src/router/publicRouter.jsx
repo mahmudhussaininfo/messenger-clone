@@ -1,3 +1,4 @@
+import ForgotPassword from "../pages/Auth/ForgotPassword/ForgotPassword";
 import Home from "../pages/Auth/Home/Home";
 import Login from "../pages/Auth/Login/Login";
 import Register from "../pages/Auth/Register/Register";
@@ -15,6 +16,10 @@ const publicRouter = [
   {
     path: "/register",
     element: <Register />,
+  },
+  {
+    path: "/forgot",
+    element: <ForgotPassword />,
   },
 ];
 
