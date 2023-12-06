@@ -2,11 +2,15 @@ import PageHelmet from "../../../components/PageHelmet/PageHelmet";
 import AuthHeader from "../../../components/AuthHeader/AuthHeader";
 import { Link } from "react-router-dom";
 import useFormFields from "../../../hooks/useFormFields";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { createUser } from "../../../features/auth/authApiSlice";
+import { getAuthData, setMessageEmpty } from "../../../features/auth/authSlice";
+import { useEffect } from "react";
+import { createToast } from "../../../utils/toast";
 
 const Register = () => {
   const dispatch = useDispatch();
+  const { message, error, user } = useSelector(getAuthData);
   const { input, setInput, handleInputChange, resetForm } = useFormFields({
     name: "",
     auth: "",
@@ -16,11 +20,21 @@ const Register = () => {
   //handleSubmit
   const handleSubmit = (e) => {
     e.preventDefault();
-
     dispatch(createUser(input));
-
     resetForm();
   };
+
+  //useEffect
+  useEffect(() => {
+    if (message) {
+      createToast(message, "success");
+      dispatch(setMessageEmpty());
+    }
+    if (error) {
+      createToast(error);
+      dispatch(setMessageEmpty());
+    }
+  }, [message, error, dispatch]);
   return (
     <>
       <PageHelmet title="Create an account" />

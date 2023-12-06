@@ -2,7 +2,12 @@ import asyncHandler from "express-async-handler";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
-import { isValidEmail, isValidPhoneNumber } from "../helpers/helpers.js";
+import {
+  createOtp,
+  isValidEmail,
+  isValidPhoneNumber,
+} from "../helpers/helpers.js";
+import { activatedEmail } from "../mails/accountActivateEmail.js";
 
 /**
  * @DESC User Login
@@ -87,18 +92,59 @@ export const register = asyncHandler(async (req, res) => {
     return res.status(400).json({ message: "All fields are required" });
   }
 
+  //otp for activation code
+  const activateCode = createOtp();
+
   let authEmail = null;
   let authPhone = null;
 
   if (isValidEmail(auth)) {
     authEmail = auth;
+    //existing email check
+    const emailCheck = await User.findOne({ email: auth });
+    if (emailCheck) {
+      return res.status(400).json({ message: "Email Already exists" });
+    }
+
+    // create access token
+    const token = jwt.sign(
+      { email: auth, otp: activateCode },
+      process.env.ACCESS_TOKEN_SECRET,
+      {
+        expiresIn: "15m",
+      }
+    );
+
+    res.cookie("verifyToken", token, {
+      httpOnly: true,
+      secure: process.env.APP_ENV == "Development" ? false : true,
+      sameSite: "strict",
+      path: "/",
+      maxAge: 15 * 60 * 1000,
+    });
+
+    //activation link
+    const activeLink = `http://localhost:3000/acivelink/${token}`;
+
+    await activatedEmail(auth, {
+      name,
+      code: activateCode,
+      link: activeLink,
+    });
   } else if (isValidPhoneNumber(auth)) {
     authPhone = auth;
+
+    //existing Phone check
+    const phoneCheck = await User.findOne({ phone: auth });
+    if (phoneCheck) {
+      return res.status(400).json({ message: "Phone Already exists" });
+    }
   } else {
     return res
       .status(400)
       .json({ message: "Please input your valid email or phone" });
   }
+
   // check user email
   // const userEmailCheck = await User.findOne({ email });
 
@@ -115,6 +161,7 @@ export const register = asyncHandler(async (req, res) => {
     email: authEmail,
     phone: authPhone,
     password: hashPass,
+    accessToken: activateCode,
   });
 
   res.status(200).json({
