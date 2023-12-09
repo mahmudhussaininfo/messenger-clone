@@ -20,6 +20,17 @@ export const createOtp = (length = 5) => {
   for (let i = 0; i < length; i++) {
     otp += Math.floor(Math.random() * 10);
   }
-
   return otp;
+};
+
+//dot(.) to hyphene(mamuHusen)
+export const dotToHyphene = (string) => {
+  const modify = string.replace(/\./g, "mamuHusen");
+  return modify;
+};
+
+//hyphene(mamuHusen) to dot(.)
+export const hypheneToDot = (string) => {
+  const modify = string.replace(/\mamuHusen/g, ".");
+  return modify;
 };

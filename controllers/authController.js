@@ -4,6 +4,8 @@ import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 import {
   createOtp,
+  dotToHyphene,
+  hypheneToDot,
   isValidEmail,
   isValidPhoneNumber,
 } from "../helpers/helpers.js";
@@ -107,7 +109,7 @@ export const register = asyncHandler(async (req, res) => {
     }
 
     // create access token
-    const token = jwt.sign(
+    const verifyToken = jwt.sign(
       { email: auth, otp: activateCode },
       process.env.ACCESS_TOKEN_SECRET,
       {
@@ -115,16 +117,12 @@ export const register = asyncHandler(async (req, res) => {
       }
     );
 
-    res.cookie("verifyToken", token, {
-      httpOnly: true,
-      secure: process.env.APP_ENV == "Development" ? false : true,
-      sameSite: "strict",
-      path: "/",
-      maxAge: 15 * 60 * 1000,
-    });
+    res.cookie("verifyToken", verifyToken);
 
     //activation link
-    const activeLink = `http://localhost:3000/acivelink/${token}`;
+    const activeLink = `http://localhost:3000/activation/${dotToHyphene(
+      verifyToken
+    )}`;
 
     await activatedEmail(auth, {
       name,
@@ -191,4 +189,42 @@ export const makeHashPass = asyncHandler(async (req, res) => {
   // password hash
   const hashPass = await bcrypt.hash(password, 10);
   res.status(200).json({ hashPass });
+});
+
+/**
+ * account activation
+ * @method POST
+ * @access private
+ */
+
+export const accountActivationWithOtp = asyncHandler(async (req, res) => {
+  const { token } = req.params;
+  const { otp } = req.body;
+
+  // token not found
+  if (!token) {
+    return res.status(400).json({
+      message: "token not found",
+    });
+  }
+
+  // token modify
+  const tokenModify = hypheneToDot(token);
+
+  // otp not found
+  if (!otp) {
+    return res.status(400).json({
+      message: "otp not found",
+    });
+  }
+
+  // veryfyToken
+  const tokenCheck = jwt.verify(tokenModify, process.env.ACCESS_TOKEN_SECRET);
+
+  // token not found
+  if (!tokenCheck) {
+    return res.status(400).json({
+      message: "token not okay",
+    });
+  }
 });

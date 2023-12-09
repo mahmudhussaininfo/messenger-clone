@@ -1,6 +1,6 @@
 import PageHelmet from "../../../components/PageHelmet/PageHelmet";
 import AuthHeader from "../../../components/AuthHeader/AuthHeader";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import useFormFields from "../../../hooks/useFormFields";
 import { useDispatch, useSelector } from "react-redux";
 import { createUser } from "../../../features/auth/authApiSlice";
@@ -10,7 +10,8 @@ import { createToast } from "../../../utils/toast";
 
 const Register = () => {
   const dispatch = useDispatch();
-  const { message, error, user } = useSelector(getAuthData);
+  const navigate = useNavigate();
+  const { message, error, loader, user } = useSelector(getAuthData);
   const { input, setInput, handleInputChange, resetForm } = useFormFields({
     name: "",
     auth: "",
@@ -21,7 +22,6 @@ const Register = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     dispatch(createUser(input));
-    resetForm();
   };
 
   //useEffect
@@ -29,6 +29,8 @@ const Register = () => {
     if (message) {
       createToast(message, "success");
       dispatch(setMessageEmpty());
+      resetForm();
+      navigate("/activation");
     }
     if (error) {
       createToast(error);
@@ -47,32 +49,47 @@ const Register = () => {
             />
 
             <div className="auth-form">
-              <form action="" onSubmit={handleSubmit}>
-                <input
-                  type="text"
-                  placeholder="Your Name"
-                  name="name"
-                  value={input.name}
-                  onChange={handleInputChange}
-                />
-                <input
-                  type="text"
-                  placeholder="Email or Phone number"
-                  name="auth"
-                  value={input.auth}
-                  onChange={handleInputChange}
-                />
-                <input
-                  type="password"
-                  placeholder="password"
-                  name="password"
-                  value={input.password}
-                  onChange={handleInputChange}
-                />
-                <button type="submit" className="fb-bg">
-                  Register
-                </button>
-              </form>
+              {loader ? (
+                <>
+                  <h1>Loading.........</h1>
+                  <p>
+                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                    Iure, adipisci ipsam eligendi reprehenderit nobis nesciunt
+                    maxime tenetur mollitia dignissimos, quisquam quas ea
+                    architecto unde nemo, porro libero velit dolores. Cumque?
+                  </p>
+                </>
+              ) : (
+                <>
+                  {" "}
+                  <form action="" onSubmit={handleSubmit}>
+                    <input
+                      type="text"
+                      placeholder="Your Name"
+                      name="name"
+                      value={input.name}
+                      onChange={handleInputChange}
+                    />
+                    <input
+                      type="text"
+                      placeholder="Email or Phone number"
+                      name="auth"
+                      value={input.auth}
+                      onChange={handleInputChange}
+                    />
+                    <input
+                      type="password"
+                      placeholder="password"
+                      name="password"
+                      value={input.password}
+                      onChange={handleInputChange}
+                    />
+                    <button type="submit" className="fb-bg">
+                      Register {loader ? "loading..." : ""}
+                    </button>
+                  </form>
+                </>
+              )}
             </div>
           </div>
           <div className="auth-bottom">
