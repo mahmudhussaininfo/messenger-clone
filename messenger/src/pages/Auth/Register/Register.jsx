@@ -36,7 +36,7 @@ const Register = () => {
       createToast(error);
       dispatch(setMessageEmpty());
     }
-  }, [message, error, dispatch]);
+  }, [message, error, dispatch, navigate, resetForm]);
   return (
     <>
       <PageHelmet title="Create an account" />

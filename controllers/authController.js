@@ -227,4 +227,27 @@ export const accountActivationWithOtp = asyncHandler(async (req, res) => {
       message: "token not okay",
     });
   }
+
+  //active account
+  let activeUser = null;
+
+  if (isValidEmail(tokenCheck.email)) {
+    activeUser = await User.findOne({ email: tokenCheck.email });
+
+    if (!activeUser) {
+      return res.status(404).json({ message: "active user not found" });
+    }
+  } else {
+    return res.status(404).json({ message: "auth is undefined" });
+  }
+
+  if (otp !== activeUser.accessToken) {
+    return res.status(404).json({ message: "incorrect otp" });
+  }
+
+  activeUser.accessToken = null;
+  activeUser.save();
+
+  res.clearCookie("verifyToken");
+  return res.status(200).json({ message: "active user successful" });
 });

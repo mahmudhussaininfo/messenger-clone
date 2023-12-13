@@ -66,3 +66,22 @@ export const getLoggedInUser = createAsyncThunk(
     }
   }
 );
+
+// for activation otp and token
+export const activationLogin = createAsyncThunk(
+  "auth/activationLogin",
+  async (data) => {
+    try {
+      const response = await axios.post(
+        `http://localhost:5050/api/v1/auth/activation-by-otp/${data.token}`,
+        { otp: data.otp },
+        {
+          withCredentials: true,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response.data.message);
+    }
+  }
+);
