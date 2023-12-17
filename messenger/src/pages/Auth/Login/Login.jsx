@@ -1,8 +1,44 @@
 import PageHelmet from "../../../components/PageHelmet/PageHelmet";
 import AuthHeader from "../../../components/AuthHeader/AuthHeader";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { getAuthData, setMessageEmpty } from "../../../features/auth/authSlice";
+import useFormFields from "../../../hooks/useFormFields";
+import { useEffect } from "react";
+import { createToast } from "../../../utils/toast";
+import { loginUser } from "../../../features/auth/authApiSlice";
 
 const Login = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { message, error, loader, user } = useSelector(getAuthData);
+  const { input, setInput, handleInputChange, resetForm } = useFormFields({
+    auth: "",
+    password: "",
+  });
+
+  //handle Submit
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    dispatch(loginUser(input));
+  };
+
+  //useEffect
+  useEffect(() => {
+    if (message) {
+      createToast(message, "success");
+      dispatch(setMessageEmpty());
+      resetForm();
+    }
+    if (error) {
+      createToast(error);
+      dispatch(setMessageEmpty());
+    }
+
+    if (user) {
+      navigate("/");
+    }
+  }, [message, error, dispatch, navigate, resetForm, user]);
   return (
     <>
       <PageHelmet title="Sign in Here" />
@@ -15,10 +51,24 @@ const Login = () => {
             />
 
             <div className="auth-form">
-              <form action="">
-                <input type="text" placeholder="email or phone number" />
-                <input type="password" placeholder="password" />
-                <button className="fb-bg">Login</button>
+              <form action="" onSubmit={handleSubmit}>
+                <input
+                  type="text"
+                  placeholder="email or phone number"
+                  value={input.auth}
+                  name="auth"
+                  onChange={handleInputChange}
+                />
+                <input
+                  type="password"
+                  placeholder="password"
+                  value={input.password}
+                  name="password"
+                  onChange={handleInputChange}
+                />
+                <button type="submit" className="fb-bg">
+                  Login
+                </button>
               </form>
             </div>
 

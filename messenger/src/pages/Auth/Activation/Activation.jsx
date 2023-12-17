@@ -1,11 +1,14 @@
 import PageHelmet from "../../../components/PageHelmet/PageHelmet";
 import AuthHeader from "../../../components/AuthHeader/AuthHeader";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import Cookies from "js-cookie";
 import { useEffect } from "react";
 import useFormFields from "../../../hooks/useFormFields";
 import { useDispatch, useSelector } from "react-redux";
-import { activationLogin } from "../../../features/auth/authApiSlice";
+import {
+  activationLogin,
+  activationLoginLink,
+} from "../../../features/auth/authApiSlice";
 import { createToast } from "../../../utils/toast";
 import { getAuthData, setMessageEmpty } from "../../../features/auth/authSlice";
 import { dotToHyphene } from "../../../../../helpers/helpers";
@@ -13,6 +16,8 @@ const Activation = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const token = Cookies.get("verifyToken");
+
+  const { tokenUrl } = useParams();
 
   const { message, error, loader, user } = useSelector(getAuthData);
 
@@ -32,6 +37,12 @@ const Activation = () => {
       navigate("/login");
     }
   }, [token, navigate]);
+
+  useEffect(() => {
+    if (tokenUrl) {
+      dispatch(activationLoginLink(tokenUrl));
+    }
+  }, [tokenUrl, dispatch]);
 
   //useEffect
   useEffect(() => {

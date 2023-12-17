@@ -18,42 +18,35 @@ import { activatedEmail } from "../mails/accountActivateEmail.js";
  * @access public
  */
 export const login = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
+  const { auth, password } = req.body;
 
   // validation
-  if (!email || !password)
+  if (!auth || !password)
     return res.status(404).json({ message: "All fields are required" });
 
-  // find login user by email
-  const loginUser = await User.findOne({ email }).populate("role");
+  let loggedUser = null;
 
-  // user not found
-  if (!loginUser) return res.status(404).json({ message: "User not found" });
+  //find login user
+  if (isValidEmail(auth)) {
+    loggedUser = await User.findOne({ email: auth });
+  }
+
+  //find user not found
+  if (!loggedUser) {
+    return res.status(404).json({ message: "user not found" });
+  }
 
   // password check
-  const passwordCheck = await bcrypt.compare(password, loginUser.password);
+  const passwordCheck = await bcrypt.compare(password, loggedUser.password);
 
   // password check
   if (!passwordCheck)
     return res.status(404).json({ message: "Wrong password" });
 
   // create access token
-  const token = jwt.sign(
-    { email: loginUser.email },
-    process.env.ACCESS_TOKEN_SECRET,
-    {
-      expiresIn: process.env.ACCESS_TOKEN_EXPIRE_IN,
-    }
-  );
-
-  // create Refresh token
-  const refreshToken = jwt.sign(
-    { email: loginUser.email },
-    process.env.REFRESH_TOKEN_SECRET,
-    {
-      expiresIn: process.env.REFRESH_TOKEN_EXPIRE_IN,
-    }
-  );
+  const token = jwt.sign({ auth: auth }, process.env.ACCESS_TOKEN_SECRET, {
+    expiresIn: process.env.ACCESS_TOKEN_EXPIRE_IN,
+  });
 
   res.cookie("accessToken", token, {
     httpOnly: true,
@@ -65,7 +58,7 @@ export const login = asyncHandler(async (req, res) => {
 
   res.status(200).json({
     token,
-    user: loginUser,
+    user: loggedUser,
     message: "User Login Successful",
   });
 });
@@ -192,9 +185,9 @@ export const makeHashPass = asyncHandler(async (req, res) => {
 });
 
 /**
- * account activation
+ * account activation by otp
  * @method POST
- * @access private
+ * @access public
  */
 
 export const accountActivationWithOtp = asyncHandler(async (req, res) => {
@@ -243,6 +236,55 @@ export const accountActivationWithOtp = asyncHandler(async (req, res) => {
 
   if (otp !== activeUser.accessToken) {
     return res.status(404).json({ message: "incorrect otp" });
+  }
+
+  activeUser.accessToken = null;
+  activeUser.save();
+
+  res.clearCookie("verifyToken");
+  return res.status(200).json({ message: "active user successful" });
+});
+
+/**
+ * account activation by link
+ * @method POST
+ * @access public
+ */
+
+export const accountActivationWithLink = asyncHandler(async (req, res) => {
+  const { token } = req.params;
+
+  // token not found
+  if (!token) {
+    return res.status(400).json({
+      message: "token not found",
+    });
+  }
+
+  // token modify
+  const tokenModify = hypheneToDot(token);
+
+  // veryfyToken
+  const tokenCheck = jwt.verify(tokenModify, process.env.ACCESS_TOKEN_SECRET);
+
+  // token not found
+  if (!tokenCheck) {
+    return res.status(400).json({
+      message: "token not okay",
+    });
+  }
+
+  //active account
+  let activeUser = null;
+
+  if (isValidEmail(tokenCheck.email)) {
+    activeUser = await User.findOne({ email: tokenCheck.email });
+
+    if (!activeUser) {
+      return res.status(404).json({ message: "active user not found" });
+    }
+  } else {
+    return res.status(404).json({ message: "auth is undefined" });
   }
 
   activeUser.accessToken = null;

@@ -6,6 +6,7 @@ import {
   loggedInUser,
   makeHashPass,
   accountActivationWithOtp,
+  accountActivationWithLink,
 } from "../controllers/authController.js";
 import tokenVerify from "../middlewares/verifyToken.js";
 
@@ -17,6 +18,7 @@ router.route("/logout").post(logout);
 router.route("/hash").post(makeHashPass);
 router.route("/register").post(register);
 router.route("/activation-by-otp/:token").post(accountActivationWithOtp);
+router.route("/activation-by-link/:token").post(accountActivationWithLink);
 
 router.get("/me", tokenVerify, loggedInUser);
 
