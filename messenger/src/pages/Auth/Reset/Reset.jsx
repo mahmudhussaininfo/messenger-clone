@@ -1,50 +1,31 @@
+import React, { useEffect } from "react";
 import PageHelmet from "../../../components/PageHelmet/PageHelmet";
 import AuthHeader from "../../../components/AuthHeader/AuthHeader";
-import { Link, useNavigate, useParams } from "react-router-dom";
-import Cookies from "js-cookie";
-import { useEffect } from "react";
-import useFormFields from "../../../hooks/useFormFields";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  activationLogin,
-  activationLoginLink,
-} from "../../../features/auth/authApiSlice";
+import { Link, useNavigate } from "react-router-dom";
 import { createToast } from "../../../utils/toast";
-import { getAuthData, setMessageEmpty } from "../../../features/auth/authSlice";
-import { dotToHyphene } from "../../../../../helpers/helpers";
+import { useDispatch, useSelector } from "react-redux";
 import useAuthUser from "../../../hooks/useAuthUser";
-const Activation = () => {
+import useFormFields from "../../../hooks/useFormFields";
+import { getAuthData, setMessageEmpty } from "../../../features/auth/authSlice";
+import { resetPassword } from "../../../features/auth/authApiSlice";
+import Cookies from "js-cookie";
+
+const Reset = () => {
   const dispatch = useDispatch();
-  const { user } = useAuthUser();
   const navigate = useNavigate();
+  const { user } = useAuthUser();
   const token = Cookies.get("verifyToken");
-
-  const { tokenUrl } = useParams();
-
   const { message, error, loader } = useSelector(getAuthData);
-
   const { input, setInput, handleInputChange, resetForm } = useFormFields({
+    newPass: "",
+    confPass: "",
     otp: "",
   });
 
-  //handle Submit
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    dispatch(activationLogin({ token: dotToHyphene(token), otp: input.otp }));
+    dispatch(resetPassword({ token, input }));
   };
-
-  useEffect(() => {
-    if (!token) {
-      navigate("/login");
-    }
-  }, [token, navigate]);
-
-  useEffect(() => {
-    if (tokenUrl) {
-      dispatch(activationLoginLink(tokenUrl));
-    }
-  }, [tokenUrl, dispatch]);
 
   //useEffect
   useEffect(() => {
@@ -52,7 +33,7 @@ const Activation = () => {
       createToast(message, "success");
       dispatch(setMessageEmpty());
       resetForm();
-      navigate("/");
+      navigate("/login");
     }
     if (error) {
       createToast(error);
@@ -62,23 +43,37 @@ const Activation = () => {
   return (
     <>
       {" "}
-      <PageHelmet title="Account Activation" />
+      <PageHelmet title="Reset Password" />
       <div className="auth-container">
         <div className="auth-wrapper">
           <div className="auth-top">
-            <AuthHeader title="Active Your Account" description="Hello Guys" />
+            <AuthHeader title="Reset Your Password" description="" />
 
             <div className="auth-form">
-              <form action="" onSubmit={handleSubmit}>
+              <form onSubmit={handleSubmit}>
                 <input
                   type="text"
-                  placeholder="otp"
+                  name="newPass"
+                  value={input.newPass}
+                  onChange={handleInputChange}
+                  placeholder="New Password"
+                />
+                <input
+                  type="text"
+                  name="confPass"
+                  value={input.confPass}
+                  onChange={handleInputChange}
+                  placeholder="Confirm Password"
+                />
+                <input
+                  type="text"
                   name="otp"
                   value={input.otp}
                   onChange={handleInputChange}
+                  placeholder="otp"
                 />
-                <button type="submit" className="fb-bg">
-                  Active
+                <button className="fb-bg" type="submit">
+                  Reset
                 </button>
               </form>
             </div>
@@ -94,4 +89,4 @@ const Activation = () => {
   );
 };
 
-export default Activation;
+export default Reset;

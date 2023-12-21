@@ -14,7 +14,7 @@ const Register = () => {
   const { message, error, loader, user } = useSelector(getAuthData);
   const { input, setInput, handleInputChange, resetForm } = useFormFields({
     name: "",
-    auth: "",
+    email: "",
     password: "",
   });
 
@@ -30,7 +30,7 @@ const Register = () => {
       createToast(message, "success");
       dispatch(setMessageEmpty());
       resetForm();
-      navigate("/activation");
+      navigate("/");
     }
     if (error) {
       createToast(error);
@@ -73,8 +73,8 @@ const Register = () => {
                     <input
                       type="text"
                       placeholder="Email or Phone number"
-                      name="auth"
-                      value={input.auth}
+                      name="email"
+                      value={input.email}
                       onChange={handleInputChange}
                     />
                     <input

@@ -1,11 +1,47 @@
 import PageHelmet from "../../../components/PageHelmet/PageHelmet";
 import AuthHeader from "../../../components/AuthHeader/AuthHeader";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { getAuthData, setMessageEmpty } from "../../../features/auth/authSlice";
+import useFormFields from "../../../hooks/useFormFields";
+import { createToast } from "../../../utils/toast";
+import { forgetPassword } from "../../../features/auth/authApiSlice";
+import { useEffect } from "react";
+import useAuthUser from "../../../hooks/useAuthUser";
 
 const ForgotPassword = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { user } = useAuthUser();
+  const { message, error, loader } = useSelector(getAuthData);
+  const { input, setInput, handleInputChange, resetForm } = useFormFields({
+    email: "",
+  });
+
+  //handle Submit
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    dispatch(forgetPassword(input));
+  };
+
+  //useEffect
+  useEffect(() => {
+    if (message) {
+      createToast(message, "success");
+      dispatch(setMessageEmpty());
+      resetForm();
+      navigate("/reset");
+    }
+    if (error) {
+      createToast(error);
+      dispatch(setMessageEmpty());
+    }
+  }, [message, error, dispatch, navigate, resetForm]);
   return (
     <>
       <PageHelmet title="Forgot Your Password" />
+
       <div className="auth-container">
         <div className="auth-wrapper">
           <div className="auth-top">
@@ -15,9 +51,17 @@ const ForgotPassword = () => {
             />
 
             <div className="auth-form">
-              <form action="">
-                <input type="text" placeholder="email or phone number" />
-                <button className="fb-bg">Recover</button>
+              <form onSubmit={handleSubmit}>
+                <input
+                  type="text"
+                  name="email"
+                  value={input.email}
+                  onChange={handleInputChange}
+                  placeholder="email or phone number"
+                />
+                <button className="fb-bg" type="submit">
+                  Recover
+                </button>
               </form>
             </div>
           </div>

@@ -13,7 +13,7 @@ const Login = () => {
   const navigate = useNavigate();
   const { message, error, loader, user } = useSelector(getAuthData);
   const { input, setInput, handleInputChange, resetForm } = useFormFields({
-    auth: "",
+    email: "",
     password: "",
   });
 
@@ -55,8 +55,8 @@ const Login = () => {
                 <input
                   type="text"
                   placeholder="email or phone number"
-                  value={input.auth}
-                  name="auth"
+                  value={input.email}
+                  name="email"
                   onChange={handleInputChange}
                 />
                 <input

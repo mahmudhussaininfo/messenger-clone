@@ -103,3 +103,59 @@ export const activationLoginLink = createAsyncThunk(
     }
   }
 );
+
+//resend activition link
+export const resendActivitionLink = createAsyncThunk(
+  "auth/resendActivitionLink",
+  async (email) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:5050/api/v1/auth/resend-activation-otp/${email}`,
+        {
+          withCredentials: true,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response.data.message);
+    }
+  }
+);
+
+//forget password
+export const forgetPassword = createAsyncThunk(
+  "auth/forgetPassword",
+  async (data) => {
+    try {
+      const response = await axios.post(
+        "http://localhost:5050/api/v1/auth/forget-password",
+        data,
+        {
+          withCredentials: true,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response.data.message);
+    }
+  }
+);
+
+//reset password
+export const resetPassword = createAsyncThunk(
+  "auth/resetPassword",
+  async (data) => {
+    try {
+      const response = await axios.post(
+        `http://localhost:5050/api/v1/auth/reset-password/${data.token}`,
+        data.input,
+        {
+          withCredentials: true,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response.data.message);
+    }
+  }
+);

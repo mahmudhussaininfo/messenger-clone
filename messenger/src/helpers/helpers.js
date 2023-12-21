@@ -52,3 +52,17 @@ export const createOtp = (length = 5) => {
 
   return otp;
 };
+
+//hide middle email
+export const hideEmailMiddle = (email) => {
+  const emailMain = email.split("@");
+
+  const firstChart = emailMain[0].charAt(0);
+  const lastChart = emailMain[0].charAt(emailMain.length - 1);
+
+  const middlePart = emailMain[0].slice(1, -1).replace(/./g, "*");
+
+  const hiddenEmail = firstChart + middlePart + lastChart + "@" + emailMain[1];
+
+  return hiddenEmail;
+};

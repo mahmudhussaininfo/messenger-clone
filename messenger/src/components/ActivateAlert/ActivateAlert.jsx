@@ -1,28 +1,25 @@
-import PageHelmet from "../../../components/PageHelmet/PageHelmet";
-import AuthHeader from "../../../components/AuthHeader/AuthHeader";
-import { Link, useNavigate, useParams } from "react-router-dom";
-import Cookies from "js-cookie";
-import { useEffect } from "react";
-import useFormFields from "../../../hooks/useFormFields";
+import React from "react";
+import useAuthUser from "../../hooks/useAuthUser";
+import useFormFields from "../../hooks/useFormFields";
+import { hideEmailMiddle } from "../../helpers/helpers";
 import { useDispatch, useSelector } from "react-redux";
 import {
   activationLogin,
-  activationLoginLink,
-} from "../../../features/auth/authApiSlice";
-import { createToast } from "../../../utils/toast";
-import { getAuthData, setMessageEmpty } from "../../../features/auth/authSlice";
-import { dotToHyphene } from "../../../../../helpers/helpers";
-import useAuthUser from "../../../hooks/useAuthUser";
-const Activation = () => {
+  resendActivitionLink,
+} from "../../features/auth/authApiSlice";
+import { createToast } from "../../utils/toast";
+import Cookies from "js-cookie";
+import { useEffect } from "react";
+import { getAuthData, setMessageEmpty } from "../../features/auth/authSlice";
+import { useNavigate } from "react-router-dom";
+import { dotToHyphene } from "../../../../helpers/helpers";
+
+const ActivateAlert = () => {
   const dispatch = useDispatch();
-  const { user } = useAuthUser();
   const navigate = useNavigate();
+  const { user } = useAuthUser();
   const token = Cookies.get("verifyToken");
-
-  const { tokenUrl } = useParams();
-
   const { message, error, loader } = useSelector(getAuthData);
-
   const { input, setInput, handleInputChange, resetForm } = useFormFields({
     otp: "",
   });
@@ -34,17 +31,11 @@ const Activation = () => {
     dispatch(activationLogin({ token: dotToHyphene(token), otp: input.otp }));
   };
 
-  useEffect(() => {
-    if (!token) {
-      navigate("/login");
-    }
-  }, [token, navigate]);
-
-  useEffect(() => {
-    if (tokenUrl) {
-      dispatch(activationLoginLink(tokenUrl));
-    }
-  }, [tokenUrl, dispatch]);
+  //handle Resend code
+  const handleResendCode = (e, email) => {
+    e.preventDefault();
+    dispatch(resendActivitionLink(email));
+  };
 
   //useEffect
   useEffect(() => {
@@ -61,18 +52,15 @@ const Activation = () => {
   }, [message, error, dispatch, navigate, resetForm]);
   return (
     <>
-      {" "}
-      <PageHelmet title="Account Activation" />
       <div className="auth-container">
         <div className="auth-wrapper">
           <div className="auth-top">
-            <AuthHeader title="Active Your Account" description="Hello Guys" />
-
+            <h4>Hello {user?.name} please active your account</h4>
             <div className="auth-form">
               <form action="" onSubmit={handleSubmit}>
                 <input
                   type="text"
-                  placeholder="otp"
+                  placeholder="Otp Code"
                   name="otp"
                   value={input.otp}
                   onChange={handleInputChange}
@@ -82,11 +70,13 @@ const Activation = () => {
                 </button>
               </form>
             </div>
-          </div>
-          <div className="auth-bottom">
-            <Link to="/login" className="fb-bg-green">
-              Login now
-            </Link>
+            <p>
+              <br />
+
+              <a href="#" onClick={(e) => handleResendCode(e, user?.email)}>
+                Resend activation from {hideEmailMiddle(user?.email)}
+              </a>
+            </p>
           </div>
         </div>
       </div>
@@ -94,4 +84,4 @@ const Activation = () => {
   );
 };
 
-export default Activation;
+export default ActivateAlert;

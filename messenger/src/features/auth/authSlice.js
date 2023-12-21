@@ -3,9 +3,12 @@ import {
   activationLogin,
   activationLoginLink,
   createUser,
+  forgetPassword,
   getLoggedInUser,
   loginUser,
   logoutUser,
+  resendActivitionLink,
+  resetPassword,
 } from "./authApiSlice";
 
 // create auth slice
@@ -54,6 +57,7 @@ const authSlice = createSlice({
       .addCase(activationLogin.fulfilled, (state, action) => {
         state.message = action.payload.message;
         state.loader = false;
+        state.user = action.payload.user;
       })
       .addCase(activationLoginLink.pending, (state, action) => {
         state.loader = true;
@@ -65,8 +69,48 @@ const authSlice = createSlice({
       .addCase(activationLoginLink.fulfilled, (state, action) => {
         state.message = action.payload.message;
         state.loader = false;
+        state.user = action.payload.user;
       })
       //activation with otp end
+      //resend activition start
+      .addCase(resendActivitionLink.pending, (state, action) => {
+        state.loader = true;
+      })
+      .addCase(resendActivitionLink.rejected, (state, action) => {
+        state.error = action.error.message;
+        state.loader = false;
+      })
+      .addCase(resendActivitionLink.fulfilled, (state, action) => {
+        state.message = action.payload.message;
+        state.loader = false;
+      })
+      //resend activition end
+      //forget password start
+      .addCase(forgetPassword.pending, (state, action) => {
+        state.loader = true;
+      })
+      .addCase(forgetPassword.rejected, (state, action) => {
+        state.error = action.error.message;
+        state.loader = false;
+      })
+      .addCase(forgetPassword.fulfilled, (state, action) => {
+        state.message = action.payload.message;
+        state.loader = false;
+      })
+      //forget password end
+      //reset password start
+      .addCase(resetPassword.pending, (state, action) => {
+        state.loader = true;
+      })
+      .addCase(resetPassword.rejected, (state, action) => {
+        state.error = action.error.message;
+        state.loader = false;
+      })
+      .addCase(resetPassword.fulfilled, (state, action) => {
+        state.message = action.payload.message;
+        state.loader = false;
+      })
+      //reset password end
       .addCase(loginUser.rejected, (state, action) => {
         state.error = action.error.message;
       })
