@@ -1,6 +1,6 @@
 import nodemailer from "nodemailer";
 
-export const activatedEmail = async (email, data) => {
+export const activatedEmail = async (auth, data) => {
   //create transport
   const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
@@ -15,7 +15,7 @@ export const activatedEmail = async (email, data) => {
   transporter.sendMail({
     from: "Messenger Activation <mahmudhussain504@gmail.com>",
     subject: "Mail Check",
-    to: email,
+    to: auth,
     html: `<!DOCTYPE html>
     <html lang="en">
     <head>

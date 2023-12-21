@@ -7,8 +7,10 @@ import {
   dotToHyphene,
   hypheneToDot,
   isValidEmail,
+  isValidPhoneNumber,
 } from "../helpers/helpers.js";
 import { activatedEmail } from "../mails/accountActivateEmail.js";
+import { sendSms } from "../utils/sms.js";
 
 /**
  * @DESC User Login
@@ -80,9 +82,9 @@ export const logout = asyncHandler(async (req, res) => {
  * @access public
  */
 export const register = asyncHandler(async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, auth, password } = req.body;
 
-  if (!name || !email || !password) {
+  if (!name || !auth || !password) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
@@ -90,39 +92,54 @@ export const register = asyncHandler(async (req, res) => {
   const activateCode = createOtp();
 
   let authEmail = null;
+  let authPhone = null;
 
-  if (isValidEmail(email)) {
-    authEmail = email;
+  if (isValidEmail(auth)) {
+    authEmail = auth;
     //existing email check
-    const emailCheck = await User.findOne({ email });
+    const emailCheck = await User.findOne({ email: auth });
     if (emailCheck) {
       return res.status(400).json({ message: "Email Already exists" });
     }
-
-    // create access token
-    const verifyToken = jwt.sign(
-      { email, otp: activateCode },
-      process.env.ACCESS_TOKEN_SECRET,
-      {
-        expiresIn: "15m",
-      }
-    );
-
-    res.cookie("verifyToken", verifyToken);
-
-    //activation link
-    const activeLink = `http://localhost:3000/activation/${dotToHyphene(
-      verifyToken
-    )}`;
-
-    await activatedEmail(email, {
+    await activatedEmail(auth, {
       name,
       code: activateCode,
       link: activeLink,
     });
+  } else if (isValidPhoneNumber(auth)) {
+    authPhone = auth;
+    //existing email check
+    const phoneCheck = await User.findOne({ phone: auth });
+    if (phoneCheck) {
+      return res
+        .status(400)
+        .json({ message: "phone number is Already exists" });
+    }
+    await sendSms(
+      auth,
+      `Hello ${name}, your activation code is : ${activateCode}`
+    );
   } else {
-    return res.status(400).json({ message: "Please input your valid email" });
+    return res
+      .status(400)
+      .json({ message: "Please input your valid email or phone number" });
   }
+
+  // create access token
+  const verifyToken = jwt.sign(
+    { auth, otp: activateCode },
+    process.env.ACCESS_TOKEN_SECRET,
+    {
+      expiresIn: "15m",
+    }
+  );
+
+  res.cookie("verifyToken", verifyToken);
+
+  //activation link
+  const activeLink = `http://localhost:3000/activation/${dotToHyphene(
+    verifyToken
+  )}`;
 
   // password hash
   const hashPass = await bcrypt.hash(password, 10);
@@ -131,6 +148,7 @@ export const register = asyncHandler(async (req, res) => {
   const user = await User.create({
     name,
     email: authEmail,
+    phone: authPhone,
     password: hashPass,
     accessToken: activateCode,
   });
