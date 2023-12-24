@@ -1,7 +1,7 @@
 import React from "react";
 import useAuthUser from "../../hooks/useAuthUser";
 import useFormFields from "../../hooks/useFormFields";
-import { hideEmailMiddle } from "../../helpers/helpers";
+import { hideEmailMiddle, hidePhoneMiddle } from "../../helpers/helpers";
 import { useDispatch, useSelector } from "react-redux";
 import {
   activationLogin,
@@ -32,9 +32,9 @@ const ActivateAlert = () => {
   };
 
   //handle Resend code
-  const handleResendCode = (e, email) => {
+  const handleResendCode = (e, auth) => {
     e.preventDefault();
-    dispatch(resendActivitionLink(email));
+    dispatch(resendActivitionLink(auth));
   };
 
   //useEffect
@@ -72,10 +72,15 @@ const ActivateAlert = () => {
             </div>
             <p>
               <br />
-
-              <a href="#" onClick={(e) => handleResendCode(e, user?.email)}>
-                Resend activation from {hideEmailMiddle(user?.email)}
-              </a>
+              {user.email ? (
+                <a href="#" onClick={(e) => handleResendCode(e, user?.email)}>
+                  Resend activation from {hideEmailMiddle(user?.email)}
+                </a>
+              ) : (
+                <a href="#" onClick={(e) => handleResendCode(e, user?.phone)}>
+                  Resend activation from {hidePhoneMiddle(user?.phone)}
+                </a>
+              )}
             </p>
           </div>
         </div>

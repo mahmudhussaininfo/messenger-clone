@@ -107,10 +107,10 @@ export const activationLoginLink = createAsyncThunk(
 //resend activition link
 export const resendActivitionLink = createAsyncThunk(
   "auth/resendActivitionLink",
-  async (email) => {
+  async (auth) => {
     try {
       const response = await axios.get(
-        `http://localhost:5050/api/v1/auth/resend-activation-otp/${email}`,
+        `http://localhost:5050/api/v1/auth/resend-activation-otp/${auth}`,
         {
           withCredentials: true,
         }

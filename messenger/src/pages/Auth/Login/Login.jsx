@@ -13,7 +13,7 @@ const Login = () => {
   const navigate = useNavigate();
   const { message, error, loader, user } = useSelector(getAuthData);
   const { input, setInput, handleInputChange, resetForm } = useFormFields({
-    email: "",
+    auth: "",
     password: "",
   });
 
@@ -29,6 +29,7 @@ const Login = () => {
       createToast(message, "success");
       dispatch(setMessageEmpty());
       resetForm();
+      navigate("/");
     }
     if (error) {
       createToast(error);
@@ -55,8 +56,8 @@ const Login = () => {
                 <input
                   type="text"
                   placeholder="email or phone number"
-                  value={input.email}
-                  name="email"
+                  value={input.auth}
+                  name="auth"
                   onChange={handleInputChange}
                 />
                 <input

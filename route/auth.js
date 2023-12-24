@@ -22,7 +22,7 @@ router.route("/hash").post(makeHashPass);
 router.route("/register").post(register);
 router.route("/activation-by-otp/:token").post(accountActivationWithOtp);
 router.route("/activation-by-link/:token").post(accountActivationWithLink);
-router.route("/resend-activation-otp/:email").get(resendActivitionOtp);
+router.route("/resend-activation-otp/:auth").get(resendActivitionOtp);
 router.route("/forget-password").post(forgetPassword);
 router.route("/reset-password/:token").post(resetPassword);
 router.get("/me", tokenVerify, loggedInUser);

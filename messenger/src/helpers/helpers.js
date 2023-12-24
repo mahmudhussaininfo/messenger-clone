@@ -66,3 +66,21 @@ export const hideEmailMiddle = (email) => {
 
   return hiddenEmail;
 };
+
+//hide phone number middle digit
+export const hidePhoneMiddle = (phone) => {
+  // Calculate the number of digits to hide
+  const visibleDigits = 4; // You can adjust this value based on your requirement
+  const totalDigits = phone.length;
+  const hiddenDigits = totalDigits - visibleDigits * 2;
+
+  // Replace the middle digits with asterisks
+  const maskedNumber =
+    phone.slice(0, hiddenDigits) +
+    phone
+      .slice(hiddenDigits, hiddenDigits + visibleDigits)
+      .replace(/\d/g, "*") +
+    phone.slice(hiddenDigits + visibleDigits);
+
+  return maskedNumber;
+};

@@ -19,17 +19,22 @@ import { sendSms } from "../utils/sms.js";
  * @access public
  */
 export const login = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
+  const { auth, password } = req.body;
 
   // validation
-  if (!email || !password)
+  if (!auth || !password)
     return res.status(404).json({ message: "All fields are required" });
 
   let loggedUser = null;
 
   //find login user
-  if (isValidEmail(email)) {
-    loggedUser = await User.findOne({ email });
+  if (isValidEmail(auth)) {
+    loggedUser = await User.findOne({ email: auth });
+  }
+
+  //find login user
+  if (isValidPhoneNumber(auth)) {
+    loggedUser = await User.findOne({ phone: auth });
   }
 
   //find user not found
@@ -45,7 +50,7 @@ export const login = asyncHandler(async (req, res) => {
     return res.status(404).json({ message: "Wrong password" });
 
   // create access token
-  const token = jwt.sign({ email }, process.env.ACCESS_TOKEN_SECRET, {
+  const token = jwt.sign({ auth: auth }, process.env.ACCESS_TOKEN_SECRET, {
     expiresIn: process.env.ACCESS_TOKEN_EXPIRE_IN,
   });
 
@@ -94,6 +99,22 @@ export const register = asyncHandler(async (req, res) => {
   let authEmail = null;
   let authPhone = null;
 
+  // create access token
+  const verifyToken = jwt.sign(
+    { auth: auth, otp: activateCode },
+    process.env.ACCESS_TOKEN_SECRET,
+    {
+      expiresIn: "15m",
+    }
+  );
+
+  res.cookie("verifyToken", verifyToken);
+
+  //activation link
+  const activeLink = `http://localhost:3000/activation/${dotToHyphene(
+    verifyToken
+  )}`;
+
   if (isValidEmail(auth)) {
     authEmail = auth;
     //existing email check
@@ -124,22 +145,6 @@ export const register = asyncHandler(async (req, res) => {
       .status(400)
       .json({ message: "Please input your valid email or phone number" });
   }
-
-  // create access token
-  const verifyToken = jwt.sign(
-    { auth, otp: activateCode },
-    process.env.ACCESS_TOKEN_SECRET,
-    {
-      expiresIn: "15m",
-    }
-  );
-
-  res.cookie("verifyToken", verifyToken);
-
-  //activation link
-  const activeLink = `http://localhost:3000/activation/${dotToHyphene(
-    verifyToken
-  )}`;
 
   // password hash
   const hashPass = await bcrypt.hash(password, 10);
@@ -221,9 +226,10 @@ export const accountActivationWithOtp = asyncHandler(async (req, res) => {
   //active account
   let activeUser = null;
 
-  if (isValidEmail(tokenCheck.email)) {
-    activeUser = await User.findOne({ email: tokenCheck.email });
-
+  if (isValidEmail(tokenCheck.auth)) {
+    activeUser = await User.findOne({ email: tokenCheck.auth });
+  } else if (isValidPhoneNumber(tokenCheck.auth)) {
+    activeUser = await User.findOne({ phone: tokenCheck.auth });
     if (!activeUser) {
       return res.status(404).json({ message: "active user not found" });
     }
@@ -276,14 +282,15 @@ export const accountActivationWithLink = asyncHandler(async (req, res) => {
   //active account
   let activeUser = null;
 
-  if (isValidEmail(tokenCheck.email)) {
-    activeUser = await User.findOne({ email: tokenCheck.email });
-
+  if (isValidEmail(tokenCheck.auth)) {
+    activeUser = await User.findOne({ email: tokenCheck.auth });
+  } else if (isValidPhoneNumber(tokenCheck.auth)) {
+    activeUser = await User.findOne({ phone: tokenCheck.auth });
     if (!activeUser) {
       return res.status(404).json({ message: "active user not found" });
     }
   } else {
-    return res.status(404).json({ message: "auth is undefined" });
+    return res.status(404).json({ message: "heeehee auth is undefined" });
   }
 
   activeUser.accessToken = null;
@@ -304,22 +311,37 @@ export const accountActivationWithLink = asyncHandler(async (req, res) => {
 
 export const resendActivitionOtp = asyncHandler(async (req, res) => {
   //get auth from url
-  const { email } = req.params;
+  const { auth } = req.params;
 
   //otp for activation code
   const activateCode = createOtp();
 
   let authEmail = null;
+  let authPhone = null;
   let authUser = null;
 
-  if (isValidEmail(email)) {
-    authEmail = email;
+  if (isValidEmail(auth)) {
+    authEmail = auth;
     //existing email check
-    authUser = await User.findOne({ email });
+    authUser = await User.findOne({ email: auth });
+
+    await activatedEmail(auth, {
+      name: authUser.name,
+      code: activateCode,
+      link: activeLink,
+    });
+  } else if (isValidPhoneNumber(auth)) {
+    authPhone = auth;
+    authUser = await User.findOne({ phone: auth });
+
+    await sendSms(
+      auth,
+      `Hello ${authUser.name}, your activation code is : ${activateCode}`
+    );
   }
 
   // create access token
-  const verifyToken = jwt.sign({ email }, process.env.ACCESS_TOKEN_SECRET, {
+  const verifyToken = jwt.sign({ auth }, process.env.ACCESS_TOKEN_SECRET, {
     expiresIn: "15m",
   });
 
@@ -329,12 +351,6 @@ export const resendActivitionOtp = asyncHandler(async (req, res) => {
   const activeLink = `http://localhost:3000/activation/${dotToHyphene(
     verifyToken
   )}`;
-
-  await activatedEmail(email, {
-    name: authUser.name,
-    code: activateCode,
-    link: activeLink,
-  });
 
   authUser.accessToken = activateCode;
   authUser.save();
@@ -352,31 +368,23 @@ export const resendActivitionOtp = asyncHandler(async (req, res) => {
  */
 
 export const forgetPassword = asyncHandler(async (req, res) => {
-  const { email } = req.body;
+  const { auth } = req.body;
 
-  if (!email) {
+  if (!auth) {
     return res.status(400).json({ message: "all fields are required" });
   }
 
   //otp for activation code
   const activateCode = createOtp();
 
-  let forgetUser = null;
-
-  if (isValidEmail(email)) {
-    //existing email check
-    forgetUser = await User.findOne({ email });
-  }
-
-  //check email
-  if (!forgetUser) {
-    return res.status(400).json({ message: "user not found" });
-  }
-
   // create access token
-  const verifyToken = jwt.sign({ email }, process.env.ACCESS_TOKEN_SECRET, {
-    expiresIn: "15m",
-  });
+  const verifyToken = jwt.sign(
+    { auth: auth },
+    process.env.ACCESS_TOKEN_SECRET,
+    {
+      expiresIn: "15m",
+    }
+  );
 
   res.cookie("verifyToken", verifyToken);
 
@@ -385,11 +393,28 @@ export const forgetPassword = asyncHandler(async (req, res) => {
     verifyToken
   )}`;
 
-  await activatedEmail(email, {
-    name: forgetUser.name,
-    code: activateCode,
-    link: activeLink,
-  });
+  let forgetUser = null;
+
+  if (isValidEmail(auth)) {
+    //existing email check
+    forgetUser = await User.findOne({ email: auth });
+    await activatedEmail(auth, {
+      name: forgetUser.name,
+      code: activateCode,
+      link: activeLink,
+    });
+  } else if (isValidPhoneNumber(auth)) {
+    forgetUser = await User.findOne({ phone: auth });
+    await sendSms(
+      auth,
+      `Hello ${forgetUser.name}, your activation code is : ${activateCode}`
+    );
+  }
+
+  //check email
+  if (!forgetUser) {
+    return res.status(400).json({ message: "user not found" });
+  }
 
   forgetUser.accessToken = activateCode;
   forgetUser.save();
@@ -440,12 +465,14 @@ export const resetPassword = asyncHandler(async (req, res) => {
   //active account
   let resetUser = null;
 
-  if (isValidEmail(tokenCheck.email)) {
-    resetUser = await User.findOne({ email: tokenCheck.email });
+  if (isValidEmail(tokenCheck.auth)) {
+    resetUser = await User.findOne({ email: tokenCheck.auth });
 
     if (!resetUser) {
       return res.status(404).json({ message: "active user not found" });
     }
+  } else if (isValidPhoneNumber(tokenCheck.auth)) {
+    resetUser = await User.findOne({ phone: tokenCheck.auth });
   } else {
     return res.status(404).json({ message: "user is undefined" });
   }

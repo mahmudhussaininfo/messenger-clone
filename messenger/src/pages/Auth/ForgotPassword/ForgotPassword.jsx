@@ -15,7 +15,7 @@ const ForgotPassword = () => {
   const { user } = useAuthUser();
   const { message, error, loader } = useSelector(getAuthData);
   const { input, setInput, handleInputChange, resetForm } = useFormFields({
-    email: "",
+    auth: "",
   });
 
   //handle Submit
@@ -54,8 +54,8 @@ const ForgotPassword = () => {
               <form onSubmit={handleSubmit}>
                 <input
                   type="text"
-                  name="email"
-                  value={input.email}
+                  name="auth"
+                  value={input.auth}
                   onChange={handleInputChange}
                   placeholder="email or phone number"
                 />

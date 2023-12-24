@@ -4,6 +4,7 @@ import PageHelmet from "../../../components/PageHelmet/PageHelmet";
 import TopBar from "../../../components/TopBar/TopBar";
 import useAuthUser from "../../../hooks/useAuthUser";
 import ActivateAlert from "../../../components/ActivateAlert/ActivateAlert";
+import Messenger from "../../messenger/Messenger";
 
 const Home = () => {
   const { user } = useAuthUser();
@@ -11,7 +12,7 @@ const Home = () => {
     <>
       <PageHelmet title="Welcome to Messenger" />
       <TopBar />
-      {user.accessToken ? <ActivateAlert /> : <h1>Main content</h1>}
+      {user.accessToken ? <ActivateAlert /> : <Messenger />}
     </>
   );
 };
