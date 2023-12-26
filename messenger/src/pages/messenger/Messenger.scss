@@ -83,6 +83,13 @@
         padding: 10px 0px;
 
         .user-photo {
+          span.chakra-avatar.css-1ruhx4w {
+            background-color: var(--mesenger-gray);
+            display: block;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 15px;
+          }
           img {
             width: 50px;
             height: auto;
@@ -200,8 +207,128 @@
         }
       }
     }
+    .chat-from-body {
+      background-color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 15px;
+
+      .chat-from-icons {
+        ul {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          li {
+            cursor: pointer;
+          }
+        }
+      }
+      .input-body {
+        width: 100%;
+        position: relative;
+
+        .emojii {
+          position: absolute;
+          top: 10px;
+          right: 10px;
+          cursor: pointer;
+          border: none;
+        }
+        .emoji-picker {
+          position: absolute;
+          right: 15px;
+          bottom: 42px;
+        }
+
+        input {
+          width: 100%;
+          border: none;
+          background-color: var(--mesenger-gray);
+          padding: 10px 16px;
+          border-radius: 20px;
+
+          &:focus {
+            outline: none;
+          }
+        }
+      }
+      .react-icons {
+        cursor: pointer;
+      }
+    }
   }
   .messenger-user-info {
     flex: 1;
+    padding: 15px;
+
+    .user-info-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+      .user-info-img {
+        img {
+          width: 75px;
+          height: auto;
+          border-radius: 50%;
+          object-fit: cover;
+        }
+      }
+
+      .user-info-title {
+        text-align: center;
+
+        h4 {
+          font-size: 20px;
+          margin-bottom: -10px;
+        }
+
+        span {
+          font-size: 10px;
+        }
+      }
+      .user-info-menu {
+        ul {
+          display: flex;
+          gap: 12px;
+
+          li {
+            padding: 15px 8px;
+            button {
+              width: 30px;
+              height: 30px;
+              border: none;
+              padding: 5px;
+              line-height: 5px;
+              border-radius: 50%;
+              cursor: pointer;
+              background-color: var(--mesenger-gray);
+              box-sizing: content-box;
+            }
+            display: flex;
+            flex-direction: column;
+
+            span {
+              font-size: 12px;
+              text-align: center;
+            }
+          }
+        }
+      }
+    }
+
+    .user-colapsable {
+      padding: 20px;
+
+      .Collapsible {
+        span {
+          display: block;
+          padding: 7px;
+          cursor: pointer;
+          font-weight: 600;
+        }
+      }
+    }
   }
 }
