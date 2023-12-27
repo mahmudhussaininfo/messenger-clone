@@ -9,6 +9,7 @@ import {
   logoutUser,
   resendActivitionLink,
   resetPassword,
+  uploadPhoto,
 } from "./authApiSlice";
 
 // create auth slice
@@ -118,6 +119,15 @@ const authSlice = createSlice({
         state.message = action.payload.message;
         state.user = action.payload.user;
         localStorage.setItem("user", JSON.stringify(action.payload.user));
+      })
+      .addCase(uploadPhoto.rejected, (state, action) => {
+        state.error = action.error.message;
+        state.loader = true;
+      })
+      .addCase(uploadPhoto.fulfilled, (state, action) => {
+        state.loader = false;
+        state.message = action.payload.message;
+        state.user = action.payload.user;
       })
       .addCase(logoutUser.rejected, (state, action) => {
         state.error = action.error.message;

@@ -14,6 +14,7 @@ import useDropdownPopupControl from "../../hooks/useDropdownPopupControl";
 import useAuthUser from "../../hooks/useAuthUser";
 import { useDispatch } from "react-redux";
 import { logoutUser } from "../../features/auth/authApiSlice";
+import { Avatar } from "@chakra-ui/react";
 
 const TopBar = () => {
   const dispatch = useDispatch();
@@ -29,7 +30,7 @@ const TopBar = () => {
       <div className="topbar">
         <div className="top-container">
           <div className="top-search">
-            <Link>
+            <Link to="/">
               <img src={fb} alt="" />
             </Link>
             <div className="search">
@@ -68,14 +69,9 @@ const TopBar = () => {
           </div>
           <div className="top-user">
             <button onClick={toggleMenu}>
-              {user.photo ? (
-                <img src={user.photo} alt="" />
-              ) : (
-                <img
-                  src="https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o="
-                  alt=""
-                />
-              )}
+              <div className="user-photo">
+                <Avatar name={user?.name} src={user?.photo} />
+              </div>
             </button>
             {isOpen && (
               <div className="dropdown-menu">
@@ -92,8 +88,7 @@ const TopBar = () => {
                     </Link>
                   </li>
                   <li>
-                    <Link>
-                      {" "}
+                    <Link to="/profile-edit">
                       <FaUserEdit />
                       Edit Profile
                     </Link>

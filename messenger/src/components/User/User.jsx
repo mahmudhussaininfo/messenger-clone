@@ -57,7 +57,7 @@ const User = () => {
             return (
               <div className="messenger-user-listinfo" key={index}>
                 <div className="user-photo">
-                  <Avatar name={item.name} src={null} />
+                  <Avatar name={item.name} src={item.photo} />
                 </div>
                 <div className="user-info">
                   <h5>{item.name}</h5>
