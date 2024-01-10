@@ -7,7 +7,7 @@ import { useEffect } from "react";
 import { createToast } from "../../utils/toast";
 import { getAllUser } from "../../features/user/userApiSlice";
 import { Avatar } from "@chakra-ui/react";
-const User = () => {
+const User = ({ activeChat, setActiveChat }) => {
   const dispatch = useDispatch();
   const { user, error, message } = useSelector(getAllUserInfo);
 
@@ -55,7 +55,14 @@ const User = () => {
         <div className="messenger-user-list">
           {user?.map((item, index) => {
             return (
-              <div className="messenger-user-listinfo" key={index}>
+              <div
+                style={{ cursor: "pointer" }}
+                className={`messenger-user-listinfo ${
+                  item?._id === activeChat?._id ? "active" : ""
+                }`}
+                key={index}
+                onClick={() => setActiveChat(item)}
+              >
                 <div className="user-photo">
                   <Avatar name={item.name} src={item.photo} />
                 </div>

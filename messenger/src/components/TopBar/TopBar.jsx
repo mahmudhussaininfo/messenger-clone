@@ -76,6 +76,10 @@ const TopBar = () => {
             {isOpen && (
               <div className="dropdown-menu">
                 <ul>
+                  <li style={{ display: "flex", alignItems: "center" }}>
+                    <img style={{ width: "60px" }} src={user?.photo} alt="" />
+                    <h6>{user?.name}</h6>
+                  </li>
                   <li>
                     <Link>
                       <MdDarkMode />

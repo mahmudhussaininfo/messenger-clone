@@ -112,7 +112,6 @@
   }
   .messenger-user-body {
     flex: 4;
-
     border-right: 1px solid #e5e5e5;
     .chat-user-body-header {
       display: flex;
@@ -153,6 +152,7 @@
       }
     }
     .chat-user-msg {
+      padding: 0px 15px;
       padding-top: 20px;
       overflow-y: auto;
       height: 80vh;
@@ -167,42 +167,62 @@
           object-fit: cover;
         }
       }
-
-      .user-main {
-        .user-main-chat {
+      .chat-msg-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        .my-msg {
           display: flex;
-          justify-content: space-between;
-          padding: 15px 20px;
+          justify-content: flex-end;
+          flex-direction: column;
+          align-items: flex-end;
+          gap: 5px;
 
-          .friend-msg {
-            display: flex;
-            align-items: center;
-            width: 400px;
-            height: auto;
-            gap: 12px;
-
-            .friend-img {
-              align-self: flex-end;
-              img {
-                width: 30px;
-                height: auto;
-                border-radius: 50%;
-                object-fit: cover;
-              }
-            }
-            .friend-chat {
-              background-color: var(--mesenger-gray);
-              padding: 10px;
-              border-radius: 12px;
+          .msg-text {
+            padding: 5px 10px;
+            border-radius: 10px;
+            background-color: var(--mesenger-blue);
+            color: #ffffff;
+            max-width: 30%;
+          }
+          .msg-photo {
+            img {
+              width: 250px;
+              height: auto;
+              border-radius: 10px;
             }
           }
+        }
 
-          .my-msg {
-            span {
-              background-color: var(--mesenger-blue);
-              color: #fff;
-              padding: 10px;
-              border-radius: 12px;
+        .msg-time {
+          text-align: center;
+          font-size: 14px;
+        }
+        .friend-msg {
+          display: flex;
+          gap: 10px;
+          .friend-img {
+            align-self: flex-end;
+            img {
+              width: 60px;
+              height: auto;
+              object-fit: cover;
+              border-radius: 50%;
+            }
+          }
+          .friend-msg-details {
+            .msg-text {
+              background-color: var(--mesenger-gray);
+              padding: 5px 10px;
+              border-radius: 10px;
+            }
+            .msg-photo {
+              margin-top: 10px;
+              img {
+                width: 250px;
+                height: auto;
+                border-radius: 15px;
+              }
             }
           }
         }
@@ -257,6 +277,15 @@
       .react-icons {
         cursor: pointer;
       }
+    }
+
+    .null-chat {
+      width: 100%;
+      height: 80vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
     }
   }
   .messenger-user-info {

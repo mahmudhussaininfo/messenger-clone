@@ -9,7 +9,9 @@ import User from "../models/User.js";
  * @access public
  */
 export const getAllUser = asyncHandler(async (req, res) => {
-  const users = await User.find({ accessToken: null }).select("-password");
+  const users = await User.find({
+    $and: [{ accessToken: null }, { _id: { $ne: req.me._id } }],
+  }).select("-password");
 
   if (users.length > 0) {
     res.status(200).json({ users });
